@@ -1,0 +1,45 @@
+package main
+import (
+	"fmt"
+	"os"
+)
+func printerr(msg string){
+	fmt.Println("file error: '" + msg + "'")
+}
+func main(){
+	var args []string = os.Args[1:]
+	var filenm string;
+	var nmode bool = false;
+	for ind := 0; ind < len(args); ind++ {
+		if args[ind] == "-f" && ind + 1 < len(args) {
+			filenm = args[ind + 1]
+		}
+		if args[ind] == "-b" {
+			nmode = true;
+		}
+	}
+	if filenm == "" {
+		return
+	}
+	f, err := os.Open(filenm)
+	if err!=nil {
+		printerr(err.Error())
+		return
+	}
+	fi, err := f.Stat()
+	var filecon []uint8 = make([]uint8, fi.Size())
+	amnt, err := f.Read(filecon)
+	if err != nil {
+		printerr(err.Error())
+		return
+	}
+	if !nmode { 
+		fmt.Printf("%s\n", string(filecon[:amnt])) 
+	} else{
+		for num := range filecon{
+			fmt.Printf("%02x ", filecon[num])
+		}
+		fmt.Println();
+	}
+	f.Close()
+}
